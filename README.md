@@ -21,8 +21,8 @@ If it does, then it is detected as a Red Arrow.
 
 ## Screenshots
 
-![App Screenshot](https://ibb.co/vQrvYTy)
-![App Screenshot](https://ibb.co/JjKLh6x)
+![App Screenshot](https://i.postimg.cc/7hFs2Pyg/591c5f28-b913-4740-9a51-32165a66b656.jpg)
+![App Screenshot](https://i.postimg.cc/J7sRZTLn/c9128718-6063-4f80-b5de-fd5539541cd2.jpg)
 
 ## Deployment
 
