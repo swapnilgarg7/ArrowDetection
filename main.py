@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import math
 
 def initialize():
     frameWidth = 640
@@ -8,6 +9,37 @@ def initialize():
     cap.set(3, frameWidth) #sets width of frame as frameWidth(640)
     cap.set(4, frameHeight) #sets height of frame as frameHeight(480)
     cap.set(10,150) #brightness level
+
+def findAngle(X1,y1,X2,y2):
+    
+    Y1 = max(y1,y2) #needed for applying formula
+    Y2 = min(y1,y2) #needed for applying formula
+
+    angRadians = math.acos((Y1-Y2)/((((X1-X2)**2)+((Y1-Y2)**2))**0.5)) #mathematical formula
+
+    angle = round(math.degrees(angRadians)) #convert angle from radians to degrees
+
+    return angle
+
+def findAngleNew(pt1,pt2,pt3):
+
+    #get x and y positions of the points
+    x1,y1 = pt1[0],pt1[1] 
+    x2,y2 = pt2[0],pt2[1]
+    x3,y3 = pt3[0],pt3[1]
+
+    angRadians = math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2) #mathematical formula
+    #atan2 returns value between -pi to pi radians
+    
+    angle = round(math.degrees(angRadians)) #convert angle from radians to degrees
+
+    if angle<0:
+        angle+=360
+
+    return angle
+
+def findDis(pt1,pt2): #mathematical way for finding distance between 2 points
+    return((pt2[0]-pt1[0])**2 + (pt2[1]-pt1[1])**2)**0.5
 
 def detectArrow(img,imgCanny):
 
@@ -34,14 +66,26 @@ def detectArrow(img,imgCanny):
 
                 if hueVal<5:
 
-                    cv.putText(imgContour,"arrow",(xpos,ypos), cv.FONT_HERSHEY_COMPLEX, 0.5, (0,255,255),2) 
+                    #cv.putText(imgContour,"arrow",(xpos,ypos), cv.FONT_HERSHEY_COMPLEX, 0.5, (0,255,255),2) 
                     #temporary, for displaying if arrow got detected or not
 
-            else:
-                break
-               
+                    rect = cv.minAreaRect(cnt) #gets minimum bounded rectangle
+                    points = cv.boxPoints(rect) #gets corner points of that rectangle
+                    points = np.int0(points) #converts points to integers
 
+                    a = findDis(points[0],points[1]) #find distance between corner1 and corner2
+                    b = findDis(points[1],points[2]) #find distance between corner2 and corner3
 
+                    if a>b: #finding longest edge and setting the longest edge's corners as points for angle calculation
+                        pt1 = points[0]  
+                        pt2 = points[1]
+
+                    else:
+                        pt1 = points[1]
+                        pt2 = points[2]   
+
+                    angle = findAngle(pt1[0],pt1[1],pt2[0],pt2[1]) #finds angle with vertical axis
+                    print("angle is ",angle) #shows the angle
 
 #MAIN CODE STARTS HERE  
 
