@@ -1,7 +1,7 @@
 
 # Arrow Detection
 
-This project was made for UAS-DTU Task 2. It detects Red Arrow from a Live Camera Feed and tells the angle the arrow makes with the vertical axis.
+This project detects Red Arrow from a Live Camera Feed and tells the angle the arrow makes with the vertical axis.
 
 
 ## Modules used
@@ -39,7 +39,5 @@ To deploy this project run
   python3 main.py
 ```
 
-
-![Logo](https://uasdtu.com/public/l.png)
 
 
