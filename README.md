@@ -27,6 +27,10 @@ The angle is calculated using some maths formulae and displayed.
 ![App Screenshot](https://i.postimg.cc/7hFs2Pyg/591c5f28-b913-4740-9a51-32165a66b656.jpg)
 ![App Screenshot](https://i.postimg.cc/J7sRZTLn/c9128718-6063-4f80-b5de-fd5539541cd2.jpg)
 
+## Video
+
+[![Watch the video](https://i.postimg.cc/7hFs2Pyg/591c5f28-b913-4740-9a51-32165a66b656.jpg)](https://imgur.com/a/0tBxvL7)
+
 ## Deployment
 
 To deploy this project run
