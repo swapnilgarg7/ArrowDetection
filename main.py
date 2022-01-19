@@ -2,10 +2,13 @@ import cv2 as cv
 import numpy as np
 import math
 
+
 def initialize():
+    global frameWidth
     frameWidth = 640
+    global frameHeight
     frameHeight = 480
-    
+
     cap.set(3, frameWidth) #sets width of frame as frameWidth(640)
     cap.set(4, frameHeight) #sets height of frame as frameHeight(480)
     cap.set(10,150) #brightness level
@@ -21,29 +24,41 @@ def findAngle(X1,y1,X2,y2):
 
     return angle
 
-def findAngleNew(pt1,pt2,pt3):
-
-    #get x and y positions of the points
-    x1,y1 = pt1[0],pt1[1] 
-    x2,y2 = pt2[0],pt2[1]
-    x3,y3 = pt3[0],pt3[1]
-
-    angRadians = math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2) #mathematical formula
-    #atan2 returns value between -pi to pi radians
+def gradient(pt1,pt2):
+    if pt2[0]==pt1[0]:
+        pt2[0]+=0.1
     
+    return (pt2[1]-pt1[1])/(pt2[0]-pt1[0]) #maths formula of slope = (y2-y1)/(x2-x1)
+
+def findAngleNew(pt1,pt2,pt3):
+    m1 = gradient(pt1,pt2) #m1 is slope1
+    m2 = gradient(pt2,pt3) #m2 is slope2
+
+    print(m1," ",m2)
+
+    angRadians = math.atan((m2-m1)/(1+(m2*m1))) #maths formula tan(thetha) = (m2-m1)/(1+m1m2)
+
     angle = round(math.degrees(angRadians)) #convert angle from radians to degrees
 
-    if angle<0:
-        angle+=360
-
     return angle
+
 
 def findDis(pt1,pt2): #mathematical way for finding distance between 2 points
     return((pt2[0]-pt1[0])**2 + (pt2[1]-pt1[1])**2)**0.5
 
-def detectArrow(img,imgCanny):
 
-    contours, heirarchy = cv.findContours(imgCanny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE) 
+def detectArrow(img):
+    imgHSV = cv.cvtColor(img, cv.COLOR_BGR2HSV) #converting image to HSV
+    
+    lower = np.array([0,50,20]) #lower HSV value for red colour
+    upper = np.array([5,255,255]) #upper HSV value for red colour
+    mask = cv.inRange(imgHSV, lower, upper) #create mask of red-coloured objects
+
+    kernel = np.ones((5,5)) #needed for dialation and erosion
+    imgDial = cv.dilate(mask, kernel, iterations=3) #applies dilation to mask
+    imgErode = cv.erode(imgDial, kernel, iterations=2) #applies erosion to dilated mask
+    
+    contours, heirarchy = cv.findContours(imgErode, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE) 
     #finds outlines of that mask
 
     for cnt in contours:
@@ -55,38 +70,29 @@ def detectArrow(img,imgCanny):
             approx = cv.approxPolyDP(cnt, 0.02*peri, True) #gives corners of the mask
             objCor = len(approx) #to store number of corners
 
+            rect = cv.minAreaRect(cnt)
+
             if objCor==7: #arrow has 7 corners
 
-                x, y, w, h = cv.boundingRect(approx) #to find dimensions of shape
-                xpos,ypos = (x+(w//2), y+(h//2)) #get positon of centre of shape from dimensions
-                
-                hsvFrame = cv.cvtColor(img, cv.COLOR_BGR2HSV) #convert image to HSV coloured
-                centrePixel = hsvFrame[xpos,ypos] #get centre pixel of the shape as HSV
-                hueVal = centrePixel[0] #hue value is H of HSV
+                points = cv.boxPoints(rect) #gets corner points of that rectangle
+                points = np.int0(points) #converts points to integers
 
-                if hueVal<5:
+                a = findDis(points[0],points[1]) #find distance between corner1 and corner2
+                b = findDis(points[1],points[2]) #find distance between corner2 and corner3
 
-                    #cv.putText(imgContour,"arrow",(xpos,ypos), cv.FONT_HERSHEY_COMPLEX, 0.5, (0,255,255),2) 
-                    #temporary, for displaying if arrow got detected or not
+                if a>b: #finding longest edge and setting the longest edge's corners as points for angle calculation
+                    pt1 = points[0]  
+                    pt2 = points[1]
 
-                    rect = cv.minAreaRect(cnt) #gets minimum bounded rectangle
-                    points = cv.boxPoints(rect) #gets corner points of that rectangle
-                    points = np.int0(points) #converts points to integers
+                else:
+                    pt1 = points[1]
+                    pt2 = points[2]
 
-                    a = findDis(points[0],points[1]) #find distance between corner1 and corner2
-                    b = findDis(points[1],points[2]) #find distance between corner2 and corner3
+                angle = findAngle(pt1[0],pt1[1],pt2[0],pt2[1]) #finds angle with vertical axis
+                cv.putText(imgContour, "angle :"+str(angle), (frameWidth//2,frameHeight//2), cv.FONT_HERSHEY_COMPLEX,1.5,(0,0,0),2) #display angle
+        
 
-                    if a>b: #finding longest edge and setting the longest edge's corners as points for angle calculation
-                        pt1 = points[0]  
-                        pt2 = points[1]
-
-                    else:
-                        pt1 = points[1]
-                        pt2 = points[2]   
-
-                    angle = findAngle(pt1[0],pt1[1],pt2[0],pt2[1]) #finds angle with vertical axis
-                    print("angle is ",angle) #shows the angle
-
+       
 #MAIN CODE STARTS HERE  
 
 cap = cv.VideoCapture(0) #initialise capture from Camera
@@ -101,11 +107,7 @@ while True:
 
     imgContour = img.copy()#we will display the arrow detected here instead of in original camera feed
 
-    imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) #converts image to greyscale
-    imgBlur = cv.GaussianBlur(imgGray, (7,7), 1) #then blurs the greyscaled image
-    imgCanny = cv.Canny(imgBlur,50,50) #finally converts the grey+blurred to Canny image(edges visible)
-
-    detectArrow(img,imgCanny) #current frame/image passed to the detectArrow function
+    detectArrow(img) #current frame/image passed to the detectArrow function
 
     cv.imshow("Original Camera Feed", img) #shows original camera feed
     cv.imshow('Arrow Detect',imgContour) #shows the image which shows if arrow detected or not
