@@ -13,12 +13,9 @@ This project was made for UAS-DTU Task 2. It detects Red Arrow from a Live Camer
 [Math](https://docs.python.org/3/library/math.html)
 
 ## Working of the Program
-The program first converts the live camera feed image into
-a Canny image and then detect objects with 7 corners
-within the camera frame(Ignoring small ones).
-Then it converts the image into HSV format so that
-it can then detect which of those 7 cornered objects were red in colour.
-If it does, it is detected as a Red Arrow. 
+The program first masks the red colour part of image through HSV values using image segmentation.
+Then it detects in the masks the objects that have 7 corners(arrows have 7 corners).
+It checks if the area of the object is above 1000pixels as a treshold value to remove small objects.
 
 After this, the minimum rectangle that would bound the arrow is found. 
 It's longest edge is taken as the line with which we should calculate the angle of vertical axis with.
