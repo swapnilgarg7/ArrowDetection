@@ -21,13 +21,7 @@ After this, the minimum rectangle that would bound the arrow is found.
 It's longest edge is taken as the line with which we should calculate the angle of vertical axis with.
 The angle is calculated using some maths formulae and displayed.
 
-
-## Screenshots
-
-![App Screenshot](https://i.postimg.cc/7hFs2Pyg/591c5f28-b913-4740-9a51-32165a66b656.jpg)
-![App Screenshot](https://i.postimg.cc/J7sRZTLn/c9128718-6063-4f80-b5de-fd5539541cd2.jpg)
-
-## Video
+## Demo Video
 
 [Watch the video by clicking here](https://imgur.com/a/0tBxvL7)
 
@@ -36,7 +30,7 @@ The angle is calculated using some maths formulae and displayed.
 To deploy this project, have python3 installed on your system and then run : 
 
 ```bash
-  pip install opencv-python
+pip install opencv-python
 ```
 ```bash
 python3 main.py
