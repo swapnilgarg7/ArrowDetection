@@ -33,11 +33,13 @@ The angle is calculated using some maths formulae and displayed.
 
 ## Deployment
 
-To deploy this project run
+To deploy this project, have python3 installed on your system and then run : 
 
 ```bash
-  python3 main.py
+  pip install opencv-python
 ```
-
+```bash
+python3 main.py
+```
 
 
